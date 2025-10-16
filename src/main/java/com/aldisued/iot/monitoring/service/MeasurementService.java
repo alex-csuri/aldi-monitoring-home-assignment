@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,9 +25,7 @@ public class MeasurementService {
       if (sensorType == null || from == null || to == null) {
           throw new IllegalArgumentException("Sensor type and time range must not be null.");
       }
-      return sensorReadingRepository.findAll().stream()
-              .filter(sr -> sr.getSensor() != null && sr.getSensor().getType() == sensorType)
-              .filter(sr -> sr.getTimestamp().isBefore(to) && sr.getTimestamp().isAfter(from))
+      return filterSensorReadings(sensorType, from, to)
               .sorted(Comparator.comparing(SensorReading::getTimestamp))
               .map(SensorReading::getValue)
               .toList();
@@ -35,14 +35,18 @@ public class MeasurementService {
       if (from == null || to == null) {
           throw new IllegalArgumentException("Invalid time period.");
       }
-      return sensorReadingRepository.findAll().stream()
-              .filter(sr -> sr.getSensor() != null && sr.getSensor().getType() == SensorType.TEMPERATURE)
-              .filter(sr -> sr.getTimestamp().isBefore(to) && sr.getTimestamp().isAfter(from))
+      return filterSensorReadings(SensorType.TEMPERATURE, from, to)
               .mapToDouble(SensorReading::getValue)
               .average()
               .stream()
               .boxed()
               .findFirst();
+  }
+
+  private Stream<SensorReading> filterSensorReadings(SensorType sensorType, LocalDateTime from, LocalDateTime to) {
+      return sensorReadingRepository.findAll().stream()
+              .filter(sr -> sr.getSensor() != null && sr.getSensor().getType() == sensorType)
+              .filter(sr -> sr.getTimestamp().isBefore(to) && sr.getTimestamp().isAfter(from));
   }
 
 }
