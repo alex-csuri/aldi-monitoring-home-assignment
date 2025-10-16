@@ -4,6 +4,7 @@ import com.aldisued.iot.monitoring.entity.SensorReading;
 import com.aldisued.iot.monitoring.entity.SensorType;
 import com.aldisued.iot.monitoring.repository.SensorReadingRepository;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,15 @@ public class MeasurementService {
 
   public List<Double> getMeasurementValuesBySensorType(SensorType sensorType, LocalDateTime from,
       LocalDateTime to) {
-    // TODO: Task 8
-    return List.of();
+      if (sensorType == null || from == null || to == null) {
+          throw new IllegalArgumentException("Sensor type and time range must not be null.");
+      }
+      return sensorReadingRepository.findAll().stream()
+              .filter(sr -> sr.getSensor() != null && sr.getSensor().getType() == sensorType)
+              .filter(sr -> sr.getTimestamp().isBefore(to) && sr.getTimestamp().isAfter(from))
+              .sorted(Comparator.comparing(SensorReading::getTimestamp))
+              .map(SensorReading::getValue)
+              .toList();
   }
 
   public Optional<Double> getAverageTemperature(LocalDateTime from, LocalDateTime to) {
