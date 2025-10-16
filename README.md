@@ -30,3 +30,14 @@ Please complete the assignment **within one week**.
 
 ## 📂 Project Structure (expected)
 
+
+The project utilises a standard Spring Boot architecture layout:
+
+| Layer          | Responsibility                                                     |
+|----------------|--------------------------------------------------------------------|
+| **Controller** | Exposes REST API endpoints and handles incoming requests.          |
+| **DTO**        | Handles data exchange between API and services.                    |
+| **Entity**     | Defines domain models and relationships mapped to database tables. |
+| **Messaging**  | Handles asynchronous communication through Kafka.                  |
+| **Repository** | Uses Spring Data JPA for persistence.                              |
+| **Service**    | Contains the core business logic, validation, and data processing. |
