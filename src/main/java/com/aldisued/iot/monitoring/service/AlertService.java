@@ -4,6 +4,9 @@ import com.aldisued.iot.monitoring.dto.AlertDto;
 import com.aldisued.iot.monitoring.entity.Alert;
 import com.aldisued.iot.monitoring.repository.AlertRepository;
 import com.aldisued.iot.monitoring.repository.SensorRepository;
+
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -28,7 +31,14 @@ public class AlertService {
   }
 
   public AlertDto findLastAlertBySensorId(UUID sensorId) {
-    // TODO: Task 5
-    return null;
+      if (sensorId == null) {
+          throw new IllegalArgumentException("Sensor ID required.");
+      }
+      List<Alert> alerts = alertRepository.findAll();
+      return alerts.stream()
+              .filter(a -> a.getSensor() != null && sensorId.equals(a.getSensor().getId()))
+              .max(Comparator.comparing(Alert::getTimestamp))
+              .map(a -> new AlertDto(sensorId, a.getMessage(), a.getTimestamp()))
+              .orElseThrow(() -> new IllegalStateException("No alert found for sensor ID: " + sensorId));
   }
 }
