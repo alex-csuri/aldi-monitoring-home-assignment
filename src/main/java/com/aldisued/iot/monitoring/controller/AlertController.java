@@ -22,7 +22,7 @@ public class AlertController {
   }
 
   @GetMapping("/latest")
-  public ResponseEntity<?> getLatestAlert(@RequestParam(required = true) UUID sensorId) {
+  public ResponseEntity<?> getLatestAlert(@RequestParam UUID sensorId) {
       try {
           AlertDto alert = alertService.findLastAlertBySensorId(sensorId);
           return ResponseEntity.ok(alert);
